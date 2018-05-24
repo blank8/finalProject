@@ -1,10 +1,14 @@
 from pygame.locals import *
 import pygame
 
-class Player:
+class Player(object):
+
+    def __init__(self):
+        self.rect = pygame.Rect(32, 32, 16, 16,)
+
     x = 10
     y = 10
-    speed = 1
+    speed = .25
 
     def moveRight(self):
         self.x = self.x + self.speed
@@ -17,35 +21,39 @@ class Player:
         
     def moveDown(self):
         self.y = self.y + self.speed
+        
+class Maze(object):
+    def __init__(self, pos):
+       walls.append(self)
+       self.rect = pygame.Rect(pos[0], pos[1], 16, 16)
 
-class Maze:
-    def __init__(self):
-       self.M = 10
-       self.N = 10
-       self.maze = [ 0,0,0,0,0,0,0,0,0,0,
-                     0,1,0,1,1,1,1,0,1,1,
-                     0,0,1,1,1,1,0,1,1,1,
-                     1,1,1,0,0,1,1,1,0,0,
-                     1,0,1,1,1,0,0,1,1,1,
-                     1,0,0,0,1,1,1,1,0,0,
-                     1,1,1,1,0,0,0,0,0,0,
-                     0,0,0,1,1,1,1,1,1,0,
-                     1,1,1,0,0,0,0,0,1,0,
-                     1,0,1,1,1,1,1,1,1,0,]
- 
-    def draw(self,display_surf,image_surf):
-       bx = 0
-       by = 0
-       for i in range(0,self.M*self.N):
-           print(i)
-           if self.maze[ bx + (by*self.M) ] == 1:
-               display_surf.blit(image_surf,( bx * 44 , by * 44))
- 
-           bx = bx + 1
-           if bx > self.M-1:
-               bx = 0 
-               by = by + 1
- 
+os.environ["SDL_VIDEO_CENTERED"] = "1"
+pygame.init()
+
+pygame.display.set_caption("FinalProjectMaze")
+screen = pygame.display.set_mode((320, 240))
+
+clock = pygame.time.Clock()
+maze = []
+player = Player()
+
+level = [
+"WWWWWWWWWWWWWWWWWWWW",
+"W                  W",
+"WWWW  WWWWWWWWWWW  W",
+"WWWW WWWWWWWW      W",
+"W WW  WWWWWWWW  WWWW",
+"W  WW        W WWWWW",
+"WW  WW  WWWWWWWW   W",
+"W WWWWW    WWW     W",
+"WW  WWWWWW    WWWWWW",
+"WW  WW   WW WWWW   W",
+"WWW WWWW        WWWW",
+"WWW    WWWWWWWW   WW",
+"WW  WWWWWWWWWWWWWE W",
+"WWWWWWWWWWWWWWWWWWWW",
+]
+
 class App:
 
     windowWidth = 800
