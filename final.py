@@ -6,116 +6,103 @@ class Player(object):
     def __init__(self):
         self.rect = pygame.Rect(32, 32, 16, 16,)
 
-    x = 10
-    y = 10
-    speed = .25
+    def move(self, dx, dy):
+        
+        if dx != 0:
+            self.move_single_axis(dx, 0)
+        if dy != 0:
+            self.move_single_axis(0, dy)
+    
+    def move_single_axis(self, dx, dy):
+        
+        self.rect.x += dx
+        self.rect.y += dy
 
-    def moveRight(self):
-        self.x = self.x + self.speed
-        
-    def moveLeft(self):
-        self.x = self.x - self.speed
-        
-    def moveUp(self):
-        self.y = self.y - self.speed
-        
-    def moveDown(self):
-        self.y = self.y + self.speed
-        
-class Maze(object):
+        for wall in walls:
+            if self.rect.colliderect(wall.rect):
+                if dx > 0: 
+                    self.rect.right = wall.rect.left
+                if dx < 0: 
+                    self.rect.left = wall.rect.right
+                if dy > 0: 
+                    self.rect.bottom = wall.rect.top
+                if dy < 0:
+                    self.rect.top = wall.rect.bottom
+
+class Wall(object):
     def __init__(self, pos):
        walls.append(self)
        self.rect = pygame.Rect(pos[0], pos[1], 16, 16)
 
-os.environ["SDL_VIDEO_CENTERED"] = "1"
 pygame.init()
 
-pygame.display.set_caption("FinalProjectMaze")
+pygame.display.set_caption("FinalProject")
 screen = pygame.display.set_mode((320, 240))
 
 clock = pygame.time.Clock()
-maze = []
+walls = []
 player = Player()
 
 level = [
-"WWWWWWWWWWWWWWWWWWWW",
-"W                  W",
-"WWWW  WWWWWWWWWWW  W",
-"WWWW WWWWWWWW      W",
-"W WW  WWWWWWWW  WWWW",
-"W  WW        W WWWWW",
-"WW  WW  WWWWWWWW   W",
-"W WWWWW    WWW     W",
-"WW  WWWWWW    WWWWWW",
+"                    ",
+"WWWWWWWWWWWWWWWWW  W",
+"W        WWWE      W",
+"W WW  WW   WWW  WWWW",
+"W  WW        W  WWWW",
+"WW  WW  WWWWWWW    W",
+"W   WWW    WWW      ",
+"WW  WWWWWW    WWW  W",
 "WW  WW   WW WWWW   W",
-"WWW WWWW        WWWW",
-"WWW    WWWWWWWW   WW",
-"WW  WWWWWWWWWWWWWE W",
-"WWWWWWWWWWWWWWWWWWWW",
+"WWW WWWW         WWW",
+"WWW    WWWWW  W   WW",
+"WW  WWWWWWW   WWWWWW",
+"W    WWWWWWWW    WWW",
 ]
 
-class App:
+x = y = 0
+for row in level:
+    for col in row:
+        if col == "W":
+            Wall((x, y))
+        if col == "E":
+            end_rect = pygame.Rect(x, y, 16, 16)
+        x += 16
+    y += 16
+    x = 0
 
-    windowWidth = 800
-    windowHight = 600
-    player = 0
-    on_execute = ''
+running = True
+while running:
+    
+    clock.tick(60)
+    
+    for e in pygame.event.get():
+        if e.type == pygame.QUIT:
+            running = False
+        if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
+            running = False
 
-    def __init__(self):
-        self.running = True
-        self.display_surf = None
-        self.image_surf = None
-        self.player = Player()
-
-    def on_init(self):
-        pygame.init()
-        self.display_surf = pygame.display.set_mode((self.windowWidth, self.windowHight), pygame.HWSURFACE)
+    key = pygame.key.get_pressed()
+    if key[pygame.K_LEFT]:
+        player.move(-2, 0)
         
-        pygame.display.set_caption('Maze')
-        self.running = True
-        self.image_surf = pygame.image.load("Pygame.png").convert()
- 
-    def on_event(self, event):
-        if event.type == QUIT:
-            self.running = False
- 
-    def on_loop(self):
-        pass
- 
-    def on_render(self):
-        self.display_surf.fill((0,0,0))
-        self.display_surf.blit(self.image_surf,(self.player.x,self.player.y))
-        pygame.display.flip()
- 
-    def on_cleanup(self):
-        pygame.quit()
- 
-    def on_execute(self):
-        if self.on_init() == False:
-            self.running = False
+    if key[pygame.K_RIGHT]:
+        player.move(2, 0)
+        
+    if key[pygame.K_UP]:
+        player.move(0, -2)
+        
+    if key[pygame.K_DOWN]:
+        player.move(0, 2)
 
-        while (self.running):
-            pygame.event.pump()
-            keys = pygame.key.get_pressed()
-
-            if (keys[K_RIGHT]):
-                self.player.moveRight()
-
-            elif(keys[K_LEFT]):
-                self.player.moveLeft()
-
-            elif(keys[K_UP]):
-                self.player.moveUp()
-
-            elif(keys[K_DOWN]):
-                self.player.moveDown()
-
-            elif(keys[K_ESCAPE]):
-                self.running = False
-
-            self.on_loop()
-            self.on_render()
-        self.on_cleanup()
+    if player.rect.colliderect(end_rect):
+        raise SystemExit; "You win!"
+    
+    screen.fill((0, 0, 0))
+    for wall in walls:
+        pygame.draw.rect(screen, (255, 255, 255), wall.rect)
+    pygame.draw.rect(screen, (255, 0, 0), end_rect)
+    pygame.draw.rect(screen, (255, 200, 0), player.rect)
+    pygame.display.flip()
 
 if __name__ == "__main__":
     App = App()
